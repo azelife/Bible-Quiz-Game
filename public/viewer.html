@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Viewer Dashboard - Bible Quiz</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --accent-quiz: #3b82f6;
+      --accent-recitation: #10b981;
+      --accent-character: #f59e0b;
+      --border-color: #d0d0d0;
+      --success: #10b981;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border-color: #404040;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Mobile-first layout */
+    .mobile-container {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* Header section */
+    .header-section {
+      display: flex;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .team-label-box {
+      flex: 1;
+      background: var(--accent-quiz);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: bold;
+      padding: 15px;
+      border-right: 2px solid var(--border-color);
+    }
+
+    .game-type-box {
+      flex: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      padding: 15px;
+      transition: background 0.3s;
+    }
+
+    .game-type-box.quiz { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); color: white; }
+    .game-type-box.recitation { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); color: white; }
+    .game-type-box.character { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color: white; }
+
+    /* Scores section - Now at top on mobile */
+    .scores-section {
+      background: var(--bg-secondary);
+      padding: 15px 10px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .scores-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .score-block {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .score-team-label {
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      margin-bottom: 5px;
+      color: var(--accent-quiz);
+    }
+
+    .score-type-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .score-points {
+      font-size: 28px;
+      font-weight: bold;
+      text-align: center;
+      color: var(--success);
+      margin: 5px 0;
+    }
+
+    .team-members {
+      margin-top: 8px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .team-members-title {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      margin-bottom: 5px;
+      text-align: center;
+    }
+
+    .member-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      justify-content: center;
+    }
+
+    .member-item {
+      font-size: 10px;
+      color: var(--text-primary);
+      padding: 2px 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+    }
+
+    .timer-section {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .timer-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 5px;
+      text-transform: uppercase;
+    }
+
+    .timer-display {
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      color: var(--accent-quiz);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .timer-display.warning {
+      color: var(--accent-character);
+      animation: pulse 1s infinite;
+    }
+
+    .timer-display.danger {
+      color: #ef4444;
+      animation: pulse 0.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Question section */
+    .question-section {
+      flex: 1;
+      padding: 20px 15px;
+      overflow-y: auto;
+      background: var(--bg-primary);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .question-number {
+      font-size: 20px;
+      font-weight: bold;
+      text-align: center;
+      color: var(--accent-quiz);
+      margin-bottom: 15px;
+      animation: fadeInDown 0.5s ease;
+    }
+
+    .question-text {
+      font-size: 18px;
+      line-height: 1.5;
+      text-align: center;
+      margin-bottom: 20px;
+      animation: fadeIn 0.5s ease 0.2s both;
+    }
+
+    .hints-container {
+      margin-top: 20px;
+    }
+
+    .hints-label {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      text-align: center;
+    }
+
+    .hint-item {
+      font-size: 14px;
+      padding: 10px 12px;
+      margin-bottom: 10px;
+      background: var(--bg-secondary);
+      border-radius: 6px;
+      border-left: 4px solid var(--accent-quiz);
+      animation: slideInLeft 0.5s ease;
+    }
+
+    .hint-requested {
+      font-style: italic;
+      color: var(--accent-character);
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    /* Answer section */
+    .answer-section {
+      padding: 20px 15px;
+      background: var(--bg-secondary);
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .answer-display {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--success);
+      text-align: center;
+      animation: fadeInScale 0.6s ease;
+      padding: 15px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      width: 100%;
+    }
+
+    .answer-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInScale {
+      from {
+        opacity: 0;
+        transform: scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    .connection-status {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      padding: 8px 15px;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      border-radius: 6px;
+      font-size: 12px;
+      z-index: 1000;
+      display: none;
+    }
+
+    .connection-status.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .connection-status.error {
+      background: #ef4444;
+    }
+
+    .connection-status.success {
+      background: #10b981;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .empty-state-text {
+      font-size: 16px;
+    }
+
+    .game-ended-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.95);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      color: white;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .game-ended-overlay.show {
+      display: flex;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .final-scores {
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .final-scores h1 {
+      font-size: 28px;
+      margin-bottom: 25px;
+      color: #fbbf24;
+    }
+
+    .final-team {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+
+    .final-team h2 {
+      font-size: 24px;
+      margin-bottom: 12px;
+    }
+
+    .final-total {
+      font-size: 42px;
+      font-weight: bold;
+      color: #10b981;
+      margin: 12px 0;
+    }
+
+    .final-breakdown {
+      font-size: 14px;
+      color: #a0a0a0;
+    }
+
+    .final-breakdown div {
+      margin: 6px 0;
+    }
+
+    /* Desktop layout */
+    @media (min-width: 768px) {
+      body {
+        overflow: hidden;
+      }
+
+      .mobile-container {
+        display: grid;
+        grid-template-columns: 200px 1fr 280px;
+        grid-template-rows: 100px 1fr auto;
+        height: 100vh;
+        gap: 0;
+      }
+
+      .header-section {
+        grid-column: 1 / 3;
+        grid-row: 1;
+        border-bottom: 2px solid var(--border-color);
+      }
+
+      .team-label-box {
+        font-size: 36px;
+        padding: 20px;
+      }
+
+      .game-type-box {
+        font-size: 28px;
+        padding: 20px;
+      }
+
+      .scores-section {
+        grid-column: 3;
+        grid-row: 1 / 4;
+        border-left: 2px solid var(--border-color);
+        border-bottom: none;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .scores-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        flex: 1;
+        margin-bottom: 20px;
+      }
+
+      .score-block {
+        padding: 20px;
+      }
+
+      .score-team-label {
+        font-size: 24px;
+        margin-bottom: 10px;
+      }
+
+      .score-type-label {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .score-points {
+        font-size: 48px;
+        margin: 15px 0;
+      }
+
+      .team-members-title {
+        font-size: 12px;
+        margin-bottom: 8px;
+        text-align: left;
+      }
+
+      .member-list {
+        flex-direction: column;
+        align-items: stretch;
+        justify-content: flex-start;
+      }
+
+      .member-item {
+        font-size: 13px;
+        padding: 4px 8px;
+      }
+
+      .timer-section {
+        padding: 20px;
+        margin-top: auto;
+      }
+
+      .timer-label {
+        font-size: 14px;
+        margin-bottom: 10px;
+      }
+
+      .timer-display {
+        font-size: 42px;
+      }
+
+      .question-section {
+        grid-column: 1 / 3;
+        grid-row: 2;
+        padding: 40px 60px;
+        border-right: 2px solid var(--border-color);
+      }
+
+      .question-number {
+        font-size: 32px;
+        margin-bottom: 30px;
+      }
+
+      .question-text {
+        font-size: 36px;
+        margin-bottom: 40px;
+      }
+
+      .hints-container {
+        margin-top: 40px;
+      }
+
+      .hints-label {
+        font-size: 24px;
+        margin-bottom: 20px;
+        text-align: left;
+      }
+
+      .hint-item {
+        font-size: 22px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+      }
+
+      .answer-section {
+        grid-column: 1 / 3;
+        grid-row: 3;
+        padding: 30px 60px;
+        min-height: 150px;
+        border-right: 2px solid var(--border-color);
+      }
+
+      .answer-display {
+        font-size: 32px;
+        padding: 20px;
+        border-radius: 12px;
+      }
+
+      .answer-label {
+        font-size: 20px;
+        margin-bottom: 10px;
+      }
+
+      .empty-state {
+        padding: 100px 40px;
+      }
+
+      .empty-state-icon {
+        font-size: 64px;
+        margin-bottom: 20px;
+      }
+
+      .empty-state-text {
+        font-size: 24px;
+      }
+
+      .final-scores {
+        max-width: 800px;
+        padding: 40px;
+      }
+
+      .final-scores h1 {
+        font-size: 48px;
+        margin-bottom: 40px;
+      }
+
+      .final-team {
+        padding: 30px;
+        margin-bottom: 30px;
+      }
+
+      .final-team h2 {
+        font-size: 36px;
+        margin-bottom: 20px;
+      }
+
+      .final-total {
+        font-size: 64px;
+        margin: 20px 0;
+      }
+
+      .final-breakdown {
+        font-size: 20px;
+      }
+
+      .final-breakdown div {
+        margin: 10px 0;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      .scores-section {
+        grid-column: 3;
+        padding: 25px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="connection-status" id="connectionStatus">⚠ Connecting...</div>
+
+  <div class="mobile-container">
+    <!-- Header -->
+    <div class="header-section">
+      <div class="team-label-box" id="teamLabel">TEAM A</div>
+      <div class="game-type-box" id="gameType">Bible Quiz</div>
+    </div>
+
+    <!-- Scores (top on mobile, right sidebar on desktop) -->
+    <div class="scores-section">
+      <div class="scores-grid">
+        <div class="score-block">
+          <div class="score-team-label">TEAM A</div>
+          <div class="score-type-label" id="typeLabel"></div>
+          <div class="score-points" id="scoreA">0</div>
+          <div class="team-members" id="membersA" style="display: none;">
+            <div class="team-members-title">Members</div>
+            <div class="member-list" id="memberListA"></div>
+          </div>
+        </div>
+
+        <div class="score-block">
+          <div class="score-team-label">TEAM B</div>
+          <div class="score-type-label" id="typeLabelB"></div>
+          <div class="score-points" id="scoreB">0</div>
+          <div class="team-members" id="membersB" style="display: none;">
+            <div class="team-members-title">Members</div>
+            <div class="member-list" id="memberListB"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-section" id="timerSection" style="display: none;">
+        <div class="timer-label">Timer</div>
+        <div class="timer-display" id="timerDisplay">00:00</div>
+      </div>
+    </div>
+
+    <!-- Question -->
+    <div class="question-section" id="questionContent">
+      <div class="empty-state">
+        <div class="empty-state-icon">📖</div>
+        <div class="empty-state-text">Waiting for question...</div>
+      </div>
+    </div>
+
+    <!-- Answer -->
+    <div class="answer-section" id="answerContent"></div>
+  </div>
+
+  <div class="game-ended-overlay" id="gameEndedOverlay">
+    <div class="final-scores" id="finalScores"></div>
+  </div>
+
+<script>
+    let pollInterval = null;
+    let connectionRetries = 0;
+    const MAX_RETRIES = 3;
+    
+    let localTimerInterval = null;
+    let timerEndTime = null;
+    let isTimerRunning = false;
+
+    let previousState = {
+      game_state: null,
+      current_question: null,
+      scores: null,
+      team_members: null
+    };
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verifySession();
+      startPolling();
+    });
+
+    async function verifySession() {
+      try {
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (!data.valid) {
+          window.location.href = '/index.html';
+        }
+      } catch (error) {
+        console.error('Session verification failed:', error);
+        window.location.href = '/index.html';
+      }
+    }
+
+    function startPolling() {
+      fetchGameState();
+      pollInterval = setInterval(fetchGameState, 2000);
+    }
+
+    async function fetchGameState() {
+      try {
+        const response = await fetch('/api/viewer/state', {
+          credentials: 'include'
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch state');
+        }
+
+        const data = await response.json();
+        
+        if (data.success) {
+          connectionRetries = 0;
+          hideConnectionStatus();
+          
+          if (hasStateChanged(data)) {
+            renderGameState(data);
+            previousState = JSON.parse(JSON.stringify(data));
+          }
+        }
+
+      } catch (error) {
+        console.error('Polling error:', error);
+        connectionRetries++;
+        
+        if (connectionRetries >= MAX_RETRIES) {
+          showConnectionStatus('⚠ Connection Lost', 'error');
+        } else {
+          showConnectionStatus('⚠ Reconnecting...', 'error');
+        }
+      }
+    }
+
+    function hasStateChanged(newData) {
+      if (!previousState.game_state) {
+        return true;
+      }
+
+      const gameStateChanged = JSON.stringify(newData.game_state) !== JSON.stringify(previousState.game_state);
+      const questionChanged = JSON.stringify(newData.current_question) !== JSON.stringify(previousState.current_question);
+      const scoresChanged = JSON.stringify(newData.scores) !== JSON.stringify(previousState.scores);
+      const membersChanged = JSON.stringify(newData.team_members) !== JSON.stringify(previousState.team_members);
+
+      return gameStateChanged || questionChanged || scoresChanged || membersChanged;
+    }
+
+    function renderGameState(data) {
+      const { game_state, current_question, scores, team_members } = data;
+
+      if (!previousState.game_state || previousState.game_state.dark_mode !== game_state.dark_mode) {
+        document.documentElement.setAttribute('data-theme', game_state.dark_mode ? 'dark' : 'light');
+      }
+
+      if (!previousState.game_state || previousState.game_state.active_team !== game_state.active_team) {
+        document.getElementById('teamLabel').textContent = `TEAM ${game_state.active_team || 'A'}`;
+      }
+
+      if (!previousState.game_state || 
+          previousState.game_state.current_question_type !== game_state.current_question_type) {
+        updateGameType(game_state.current_question_type);
+      }
+
+      if (!previousState.scores || 
+          JSON.stringify(previousState.scores) !== JSON.stringify(scores) ||
+          previousState.game_state?.current_question_type !== game_state.current_question_type) {
+        renderScores(scores, game_state.current_question_type);
+      }
+
+      if (!previousState.team_members || 
+          JSON.stringify(previousState.team_members) !== JSON.stringify(team_members)) {
+        renderTeamMembers(team_members);
+      }
+
+      const questionChanged = JSON.stringify(previousState.current_question) !== JSON.stringify(current_question);
+      const questionStateChanged = !previousState.game_state ||
+        previousState.game_state.current_question_type !== game_state.current_question_type ||
+        previousState.game_state.current_question_number !== game_state.current_question_number;
+
+      if (questionChanged || questionStateChanged) {
+        if (current_question && game_state.current_question_type && game_state.current_question_number) {
+          renderQuestion(current_question);
+        } else {
+          clearQuestion();
+        }
+      }
+
+      if (!previousState.game_state || previousState.game_state.game_ended !== game_state.game_ended) {
+        if (game_state.game_ended) {
+          showFinalScores(scores);
+        } else {
+          hideGameEndedOverlay();
+        }
+      }
+
+      handleTimerUpdate(game_state.timer_remaining);
+    }
+
+    function handleTimerUpdate(serverTimeRemaining) {
+      if (serverTimeRemaining === null || serverTimeRemaining === undefined || serverTimeRemaining <= 0) {
+        if (isTimerRunning) {
+          stopLocalTimer();
+          hideTimer();
+        }
+        return;
+      }
+
+      if (isTimerRunning) {
+        const currentLocalRemaining = timerEndTime ? Math.max(0, (timerEndTime - Date.now()) / 1000) : 0;
+        const timeDiff = Math.abs(currentLocalRemaining - serverTimeRemaining);
+        
+        if (timeDiff > 2) {
+          console.log('⏱️ Timer sync: adjusting local timer');
+          startLocalTimer(serverTimeRemaining);
+        }
+      } else {
+        console.log('⏱️ Timer started from server');
+        startLocalTimer(serverTimeRemaining);
+      }
+    }
+
+    function startLocalTimer(remainingSeconds) {
+      if (localTimerInterval) {
+        clearInterval(localTimerInterval);
+      }
+
+      isTimerRunning = true;
+      timerEndTime = Date.now() + (remainingSeconds * 1000);
+      
+      document.getElementById('timerSection').style.display = 'block';
+      
+      updateLocalTimerDisplay();
+      
+      localTimerInterval = setInterval(updateLocalTimerDisplay, 100);
+    }
+
+    function updateLocalTimerDisplay() {
+      if (!timerEndTime) return;
+
+      const remaining = Math.max(0, timerEndTime - Date.now());
+      const seconds = Math.ceil(remaining / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+
+      const display = document.getElementById('timerDisplay');
+      display.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      
+      display.classList.remove('warning', 'danger');
+      
+      if (seconds <= 5 && seconds > 0) {
+        display.classList.add('danger');
+      } else if (seconds <= 10) {
+        display.classList.add('warning');
+      }
+
+      if (remaining <= 0) {
+        stopLocalTimer();
+      }
+    }
+
+    function stopLocalTimer() {
+      if (localTimerInterval) {
+        clearInterval(localTimerInterval);
+        localTimerInterval = null;
+      }
+      isTimerRunning = false;
+      timerEndTime = null;
+    }
+
+    function hideTimer() {
+      document.getElementById('timerSection').style.display = 'none';
+    }
+
+    function updateGameType(questionType) {
+      const gameTypeEl = document.getElementById('gameType');
+      if (questionType) {
+        const typeText = questionType.toUpperCase();
+        gameTypeEl.textContent = `${typeText === 'QUIZ' ? 'Bible Quiz' : typeText}`;
+        gameTypeEl.className = `game-type-box ${questionType}`;
+      } else {
+        gameTypeEl.textContent = 'Bible Quiz';
+        gameTypeEl.className = 'game-type-box';
+      }
+    }
+
+    function renderScores(scores, questionType) {
+      const typeLabels = {
+        quiz: 'Bible Quiz',
+        recitation: 'Recitation',
+        character: 'Character'
+      };
+
+      const typeLabel = questionType ? typeLabels[questionType] : '';
+      document.getElementById('typeLabel').textContent = typeLabel;
+      document.getElementById('typeLabelB').textContent = typeLabel;
+
+      const scoreAEl = document.getElementById('scoreA');
+      const scoreBEl = document.getElementById('scoreB');
+
+      let scoreAValue, scoreBValue;
+
+      if (questionType === 'quiz') {
+        scoreAValue = scores.team_a.quiz;
+        scoreBValue = scores.team_b.quiz;
+      } else if (questionType === 'recitation') {
+        scoreAValue = scores.team_a.recitation;
+        scoreBValue = scores.team_b.recitation;
+      } else if (questionType === 'character') {
+        scoreAValue = scores.team_a.character;
+        scoreBValue = scores.team_b.character;
+      } else {
+        scoreAValue = 0;
+        scoreBValue = 0;
+      }
+
+      const newScoreA = `${scoreAValue} pts`;
+      const newScoreB = `${scoreBValue} pts`;
+
+      if (scoreAEl.textContent !== newScoreA) {
+        scoreAEl.textContent = newScoreA;
+      }
+      if (scoreBEl.textContent !== newScoreB) {
+        scoreBEl.textContent = newScoreB;
+      }
+    }
+
+    function renderTeamMembers(members) {
+      const teamAMembers = members.filter(m => m.team === 'A' && m.member_name && m.member_name.trim() !== '');
+      const teamBMembers = members.filter(m => m.team === 'B' && m.member_name && m.member_name.trim() !== '');
+
+      const membersAContainer = document.getElementById('membersA');
+      const membersBContainer = document.getElementById('membersB');
+      const memberListA = document.getElementById('memberListA');
+      const memberListB = document.getElementById('memberListB');
+
+      if (teamAMembers.length > 0) {
+        memberListA.innerHTML = teamAMembers.map(m => 
+          `<div class="member-item">${m.member_name}</div>`
+        ).join('');
+        membersAContainer.style.display = 'block';
+      } else {
+        membersAContainer.style.display = 'none';
+      }
+
+      if (teamBMembers.length > 0) {
+        memberListB.innerHTML = teamBMembers.map(m => 
+          `<div class="member-item">${m.member_name}</div>`
+        ).join('');
+        membersBContainer.style.display = 'block';
+      } else {
+        membersBContainer.style.display = 'none';
+      }
+    }
+
+    function renderQuestion(question) {
+      if (!question) return;
+
+      let hintsHtml = '';
+      
+      if (question.hints && question.hints.length > 0) {
+        const hintsList = question.hints.map((hint, idx) => {
+          if (typeof hint === 'object' && hint.requested) {
+            return `<div class="hint-item hint-requested">${hint.number}. Hint Requested...</div>`;
+          } else {
+            return `<div class="hint-item">${idx + 1}. ${hint}</div>`;
+          }
+        }).join('');
+
+        hintsHtml = `
+          <div class="hints-container">
+            <div class="hints-label">HINTS:</div>
+            ${hintsList}
+          </div>
+        `;
+      }
+
+      const newQuestionHtml = `
+        <div class="question-number">QUESTION ${question.number}</div>
+        <div class="question-text">${question.text}</div>
+        ${hintsHtml}
+      `;
+
+      const questionContentEl = document.getElementById('questionContent');
+      if (questionContentEl.innerHTML !== newQuestionHtml) {
+        questionContentEl.innerHTML = newQuestionHtml;
+      }
+
+      const newAnswerHtml = question.answer ? `
+        <div class="answer-display">
+          <div class="answer-label">ANSWER:</div>
+          ${question.answer}
+        </div>
+      ` : '';
+      
+      const answerContentEl = document.getElementById('answerContent');
+      if (answerContentEl.innerHTML !== newAnswerHtml) {
+        answerContentEl.innerHTML = newAnswerHtml;
+      }
+    }
+
+    function clearQuestion() {
+      const emptyStateHtml = `
+        <div class="empty-state">
+          <div class="empty-state-icon">📖</div>
+          <div class="empty-state-text">Waiting for question...</div>
+        </div>
+      `;
+      
+      const questionContentEl = document.getElementById('questionContent');
+      if (questionContentEl.innerHTML !== emptyStateHtml) {
+        questionContentEl.innerHTML = emptyStateHtml;
+      }
+      
+      const answerContentEl = document.getElementById('answerContent');
+      if (answerContentEl.innerHTML !== '') {
+        answerContentEl.innerHTML = '';
+      }
+    }
+
+    function showFinalScores(scores) {
+      const overlay = document.getElementById('gameEndedOverlay');
+      const finalScoresEl = document.getElementById('finalScores');
+
+      const teamATotal = scores.team_a.total;
+      const teamBTotal = scores.team_b.total;
+
+      const teamABreakdown = `
+        <div class="final-breakdown">
+          <div>Bible Quiz: ${scores.team_a.quiz} pts</div>
+          <div>Recitation: ${scores.team_a.recitation} pts</div>
+          <div>Character: ${scores.team_a.character} pts</div>
+        </div>
+      `;
+
+      const teamBBreakdown = `
+        <div class="final-breakdown">
+          <div>Bible Quiz: ${scores.team_b.quiz} pts</div>
+          <div>Recitation: ${scores.team_b.recitation} pts</div>
+          <div>Character: ${scores.team_b.character} pts</div>
+        </div>
+      `;
+
+      const winner = teamATotal > teamBTotal ? 'TEAM A WINS! 🎉' :
+                     teamBTotal > teamATotal ? 'TEAM B WINS! 🎉' :
+                     "IT'S A TIE! 🤝";
+
+      finalScoresEl.innerHTML = `
+        <h1>${winner}</h1>
+        
+        <div class="final-team">
+          <h2>TEAM A</h2>
+          <div class="final-total">${teamATotal} pts</div>
+          ${teamABreakdown}
+        </div>
+
+        <div class="final-team">
+          <h2>TEAM B</h2>
+          <div class="final-total">${teamBTotal} pts</div>
+          ${teamBBreakdown}
+        </div>
+      `;
+
+      overlay.classList.add('show');
+    }
+
+    function hideGameEndedOverlay() {
+      const overlay = document.getElementById('gameEndedOverlay');
+      overlay.classList.remove('show');
+    }
+
+    function showConnectionStatus(message, type) {
+      const statusEl = document.getElementById('connectionStatus');
+      statusEl.textContent = message;
+      statusEl.className = `connection-status ${type} show`;
+    }
+
+    function hideConnectionStatus() {
+      document.getElementById('connectionStatus').classList.remove('show');
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (pollInterval) clearInterval(pollInterval);
+      if (localTimerInterval) clearInterval(localTimerInterval);
+    });
+  </script>
+</body>
+</html>

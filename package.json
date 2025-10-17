@@ -1,0 +1,27 @@
+{
+  "name": "bible-quiz-dashboard",
+  "version": "1.0.0",
+  "description": "Real-time Bible quiz management system with Cloudflare Workers + D1",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "tail": "wrangler tail",
+    "db:create": "wrangler d1 create bible-quiz-db",
+    "db:init": "wrangler d1 execute bible-quiz-db --file=schema.sql",
+    "db:query": "wrangler d1 execute bible-quiz-db",
+    "generate:users": "node generate-users.js"
+  },
+  "keywords": [
+    "bible",
+    "quiz",
+    "cloudflare-workers",
+    "d1",
+    "real-time"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.80.0"
+  }
+}

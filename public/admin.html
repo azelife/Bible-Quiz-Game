@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Question Import</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --accent: #3b82f6;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+      --border-color: #d0d0d0;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .header {
+      background: var(--bg-primary);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header h1 {
+      color: var(--accent);
+      font-size: 28px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 2px solid var(--border-color);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .card {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 30px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      color: var(--accent);
+      font-size: 22px;
+      margin-bottom: 20px;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 10px;
+    }
+
+    .upload-area {
+      border: 3px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 60px 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 20px;
+    }
+
+    .upload-area:hover {
+      border-color: var(--accent);
+      background: var(--bg-secondary);
+    }
+
+    .upload-area.dragging {
+      border-color: var(--accent);
+      background: #e0f2fe;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .upload-text {
+      font-size: 18px;
+      color: var(--text-secondary);
+      margin-bottom: 10px;
+    }
+
+    .upload-hint {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .alert {
+      padding: 15px 20px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+      border-left: 4px solid;
+    }
+
+    .alert-success {
+      background: #d1fae5;
+      color: #065f46;
+      border-color: var(--success);
+    }
+
+    .alert-error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-color: var(--error);
+    }
+
+    .alert-info {
+      background: #dbeafe;
+      color: #1e40af;
+      border-color: var(--accent);
+    }
+
+    .alert-warning {
+      background: #fef3c7;
+      color: #92400e;
+      border-color: var(--warning);
+    }
+
+    .template-section {
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 6px;
+      margin-top: 20px;
+    }
+
+    .template-section h3 {
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: var(--text-secondary);
+    }
+
+    .template-code {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 15px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .questions-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+    }
+
+    .questions-table th,
+    .questions-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .questions-table th {
+      background: var(--bg-secondary);
+      font-weight: 600;
+      font-size: 13px;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .questions-table tr:hover {
+      background: var(--bg-secondary);
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge-quiz {
+      background: #dbeafe;
+      color: #1e40af;
+    }
+
+    .badge-recitation {
+      background: #d1fae5;
+      color: #065f46;
+    }
+
+    .badge-character {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .loading.show {
+      display: block;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--bg-secondary);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-secondary);
+      padding: 20px;
+      border-radius: 6px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 36px;
+      font-weight: bold;
+      color: var(--accent);
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>📚 Question Import & Management</h1>
+      <div>
+        <a href="/control.html" class="btn btn-secondary">← Back to Control</a>
+      </div>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <!-- Upload Section -->
+    <div class="card">
+      <h2>Import Questions from CSV</h2>
+      
+      <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">📄</div>
+        <div class="upload-text">Drag & drop CSV file here</div>
+        <div class="upload-hint">or click to browse</div>
+      </div>
+
+      <input type="file" id="fileInput" accept=".csv">
+
+      <button class="btn btn-primary" id="btnUpload" style="margin-right: 10px;">Upload & Import</button>
+      <button class="btn btn-secondary" id="btnDownloadTemplate">Download Template</button>
+
+      <div class="loading" id="uploadLoading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; color: var(--text-secondary);">Importing questions...</p>
+      </div>
+
+      <!-- CSV Template Example -->
+      <div class="template-section">
+        <h3>CSV Format Requirements:</h3>
+        <ul style="margin-bottom: 15px; line-height: 1.8; color: var(--text-secondary);">
+          <li><strong>Required columns:</strong> question_type, question_number, question_text, answer</li>
+          <li><strong>Optional columns:</strong> hint_1, hint_2, hint_3, hint_4, points, bonus_points, bonus_hint_points</li>
+          <li><strong>Question types:</strong> quiz, recitation, character</li>
+          <li><strong>Default values:</strong> points=5, bonus_points=2, bonus_hint_points=1</li>
+        </ul>
+
+        <div class="template-code">question_type,question_number,question_text,answer,hint_1,hint_2,hint_3,hint_4
+quiz,1,Who was the first king of Israel?,"Saul (1 Samuel 10:1)",He was from Benjamin,Samuel anointed him,,
+recitation,1,Recite John 3:16,"For God so loved the world...",,,,,
+character,1,Prophet who confronted King Ahab,Elijah,He was taken to heaven,He challenged Baal prophets,,</div>
+      </div>
+    </div>
+
+    <!-- Questions List -->
+    <div class="card">
+      <h2>Imported Questions</h2>
+
+      <div class="stats" id="statsContainer">
+        <div class="stat-card">
+          <div class="stat-number" id="statTotal">0</div>
+          <div class="stat-label">Total Questions</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statQuiz">0</div>
+          <div class="stat-label">Bible Quiz</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statRecitation">0</div>
+          <div class="stat-label">Recitation</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" id="statCharacter">0</div>
+          <div class="stat-label">Character</div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary" id="btnRefresh" style="margin-bottom: 20px;">🔄 Refresh List</button>
+
+      <div class="loading" id="listLoading">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; color: var(--text-secondary);">Loading questions...</p>
+      </div>
+
+      <div id="questionsContainer"></div>
+    </div>
+  </div>
+
+  <script>
+    let selectedFile = null;
+
+    // ========================================================================
+    // INITIALIZATION
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verifySession();
+      initializeEventListeners();
+      await loadQuestions();
+    });
+
+    async function verifySession() {
+      try {
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (!data.valid || data.role !== 'controller') {
+          window.location.href = '/index.html';
+        }
+      } catch (error) {
+        console.error('Session verification failed:', error);
+        window.location.href = '/index.html';
+      }
+    }
+
+    // ========================================================================
+    // EVENT LISTENERS
+    // ========================================================================
+    function initializeEventListeners() {
+      const uploadArea = document.getElementById('uploadArea');
+      const fileInput = document.getElementById('fileInput');
+
+      // Click to open file browser
+      uploadArea.addEventListener('click', () => fileInput.click());
+
+      // File input change
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) {
+          selectedFile = e.target.files[0];
+          showAlert('File selected: ' + selectedFile.name, 'info');
+        }
+      });
+
+      // Drag and drop
+      uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('dragging');
+      });
+
+      uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('dragging');
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('dragging');
+        
+        if (e.dataTransfer.files.length > 0) {
+          const file = e.dataTransfer.files[0];
+          if (file.name.endsWith('.csv')) {
+            selectedFile = file;
+            fileInput.files = e.dataTransfer.files;
+            showAlert('File selected: ' + file.name, 'info');
+          } else {
+            showAlert('Please select a CSV file', 'error');
+          }
+        }
+      });
+
+      // Upload button
+      document.getElementById('btnUpload').addEventListener('click', uploadCSV);
+
+      // Refresh button
+      document.getElementById('btnRefresh').addEventListener('click', loadQuestions);
+
+      // Download template
+      document.getElementById('btnDownloadTemplate').addEventListener('click', downloadTemplate);
+    }
+
+    // ========================================================================
+    // CSV UPLOAD
+    // ========================================================================
+    async function uploadCSV() {
+      if (!selectedFile) {
+        showAlert('Please select a CSV file first', 'warning');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('csv_file', selectedFile);
+
+      showLoading('uploadLoading', true);
+
+      try {
+        const response = await fetch('/api/admin/import/upload', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          let message = `✓ Successfully imported ${data.imported} out of ${data.total_rows} questions`;
+          
+          if (data.errors && data.errors.length > 0) {
+            message += `\n\nWarnings:\n${data.errors.slice(0, 5).join('\n')}`;
+            if (data.errors.length > 5) {
+              message += `\n... and ${data.errors.length - 5} more errors`;
+            }
+            showAlert(message, 'warning');
+          } else {
+            showAlert(message, 'success');
+          }
+
+          // Clear selection and reload list
+          selectedFile = null;
+          fileInput.value = '';
+          await loadQuestions();
+        } else {
+          showAlert('Import failed: ' + (data.error || 'Unknown error'), 'error');
+        }
+
+      } catch (error) {
+        console.error('Upload error:', error);
+        showAlert('Failed to upload CSV: ' + error.message, 'error');
+      } finally {
+        showLoading('uploadLoading', false);
+      }
+    }
+
+    // ========================================================================
+    // LOAD QUESTIONS
+    // ========================================================================
+    async function loadQuestions() {
+      showLoading('listLoading', true);
+
+      try {
+        const response = await fetch('/api/admin/questions/list', {
+          credentials: 'include'
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          renderQuestions(data.questions);
+          updateStats(data.questions);
+        } else {
+          showAlert('Failed to load questions', 'error');
+        }
+
+      } catch (error) {
+        console.error('Load error:', error);
+        showAlert('Failed to load questions: ' + error.message, 'error');
+      } finally {
+        showLoading('listLoading', false);
+      }
+    }
+
+    // ========================================================================
+    // RENDERING
+    // ========================================================================
+    function renderQuestions(questions) {
+      const container = document.getElementById('questionsContainer');
+
+      const allQuestions = [
+        ...questions.quiz.map(q => ({ ...q, type: 'quiz' })),
+        ...questions.recitation.map(q => ({ ...q, type: 'recitation' })),
+        ...questions.character.map(q => ({ ...q, type: 'character' }))
+      ].sort((a, b) => {
+        if (a.type !== b.type) return a.type.localeCompare(b.type);
+        return a.question_number - b.question_number;
+      });
+
+      if (allQuestions.length === 0) {
+        container.innerHTML = '<p style="text-align: center; color: var(--text-secondary); padding: 40px;">No questions imported yet. Upload a CSV file to get started.</p>';
+        return;
+      }
+
+      const table = `
+        <table class="questions-table">
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>#</th>
+              <th>Question</th>
+              <th>Answer</th>
+              <th>Hints</th>
+              <th>Points</th>
+              <th>Imported</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${allQuestions.map(q => {
+              const badgeClass = `badge-${q.type}`;
+              const hintCount = [q.hint_1, q.hint_2, q.hint_3, q.hint_4].filter(h => h).length;
+              const importDate = new Date(q.imported_at).toLocaleDateString();
+              
+              return `
+                <tr>
+                  <td><span class="badge ${badgeClass}">${q.type.toUpperCase()}</span></td>
+                  <td>${q.question_number}</td>
+                  <td style="max-width: 400px;">${truncate(q.question_text, 80)}</td>
+                  <td style="max-width: 300px;">${truncate(q.answer, 60)}</td>
+                  <td>${hintCount}/4</td>
+                  <td>${q.points}/${q.bonus_points}</td>
+                  <td style="font-size: 12px; color: var(--text-secondary);">${importDate}</td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+
+      container.innerHTML = table;
+    }
+
+    function updateStats(questions) {
+      const total = questions.quiz.length + questions.recitation.length + questions.character.length;
+      
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statQuiz').textContent = questions.quiz.length;
+      document.getElementById('statRecitation').textContent = questions.recitation.length;
+      document.getElementById('statCharacter').textContent = questions.character.length;
+    }
+
+    // ========================================================================
+    // UTILITIES
+    // ========================================================================
+    function showAlert(message, type) {
+      const container = document.getElementById('alertContainer');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type}`;
+      alert.textContent = message;
+      
+      container.appendChild(alert);
+
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.3s';
+        alert.style.opacity = '0';
+        setTimeout(() => alert.remove(), 300);
+      }, 5000);
+    }
+
+    function showLoading(elementId, show) {
+      document.getElementById(elementId).classList.toggle('show', show);
+    }
+
+    function truncate(text, length) {
+      if (!text) return '';
+      return text.length > length ? text.substring(0, length) + '...' : text;
+    }
+
+    function downloadTemplate() {
+      const csvContent = `question_type,question_number,question_text,answer,hint_1,hint_2,hint_3,hint_4,points,bonus_points,bonus_hint_points
+quiz,1,Who was the first king of Israel?,"Saul (1 Samuel 10:1)",He was from the tribe of Benjamin,Samuel anointed him,He was tall in stature,He lost the kingdom due to disobedience,5,2,1
+quiz,2,How many days did it rain during the flood?,"40 days and 40 nights (Genesis 7:12)",It involved rain,Noah was in the ark,God told Noah beforehand,It's the same number as Israel's years in the wilderness,5,2,1
+recitation,1,Recite John 3:16,"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life",,,,,,5,2,1
+recitation,2,Recite Psalm 23:1,"The Lord is my shepherd; I shall not want",,,,,,5,2,1
+character,1,Prophet who confronted King Ahab,Elijah,He was taken to heaven in a chariot,He challenged the prophets of Baal,He was fed by ravens,He prayed and fire came down from heaven,5,2,1
+character,2,Woman who became queen and saved her people,Esther,She was an orphan raised by Mordecai,She fasted for three days,She said "If I perish I perish",Her husband was King Xerxes,5,2,1`;
+
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'bible_quiz_template.csv';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      showAlert('Template downloaded successfully', 'success');
+    }
+  </script>
+</body>
+</html>

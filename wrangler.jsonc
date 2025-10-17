@@ -1,0 +1,41 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "bible-quiz-dashboard",
+  "main": "src/index.js",
+  "compatibility_date": "2025-10-11",
+  "compatibility_flags": [
+    "nodejs_compat",
+    "global_fetch_strictly_public"
+  ],
+  
+  // Static assets (HTML/CSS/JS files)
+  "assets": {
+    "directory": "./public"
+  },
+  
+  // D1 Database binding
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "bible-quiz-db",
+      "database_id": "7cfe8a2d-0568-413b-8c01-a08121e9de37"
+    }
+  ],
+  
+  // Environment variables
+  "vars": {
+    "ENVIRONMENT": "production"
+  },
+  
+  // Observability
+  "observability": {
+    "enabled": true
+  },
+  
+  // Cron triggers for cleanup
+  "triggers": {
+    "crons": [
+      "0 2 * * *"
+    ]
+  }
+}
