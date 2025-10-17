@@ -1,0 +1,1649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Dashboard - Bible Quiz</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f5f5;
+      --bg-tertiary: #e8e8e8;
+      --text-primary: #000000;
+      --text-secondary: #666666;
+      --accent-quiz: #3b82f6;
+      --accent-recitation: #10b981;
+      --accent-character: #f59e0b;
+      --border-color: #d0d0d0;
+      --success: #10b981;
+      --error: #ef4444;
+      --warning: #f59e0b;
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --bg-tertiary: #3a3a3a;
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0a0;
+      --border-color: #404040;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      padding: 10px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      padding: 12px 15px;
+      background: var(--bg-primary);
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .header h1 {
+      font-size: 20px;
+      color: var(--accent-quiz);
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      width: 100%;
+    }
+
+    @media (min-width: 768px) {
+      .btn {
+        width: auto;
+      }
+    }
+
+    .btn-primary {
+      background: var(--accent-quiz);
+      color: white;
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    .btn-danger {
+      background: var(--error);
+      color: white;
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 15px;
+    }
+
+    @media (min-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr 2fr;
+      }
+    }
+
+    .card {
+      background: var(--bg-primary);
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .card h2 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: var(--accent-quiz);
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 8px;
+    }
+
+    .card h3 {
+      font-size: 14px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .radio-group label {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background 0.2s;
+    }
+
+    .radio-group label:hover {
+      background: var(--bg-secondary);
+    }
+
+    .radio-group input[type="radio"] {
+      margin-right: 8px;
+      width: 18px;
+      height: 18px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      transition: border-color 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-quiz);
+    }
+
+    .preview-container {
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      padding: 15px;
+      background: var(--bg-secondary);
+      min-height: 300px;
+      position: relative;
+    }
+
+    .preview-label {
+      position: absolute;
+      top: -12px;
+      left: 15px;
+      background: var(--bg-primary);
+      padding: 0 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .question-display {
+      margin: 15px 0;
+      padding: 15px;
+      background: var(--bg-tertiary);
+      border-radius: 8px;
+      border-left: 4px solid var(--accent-quiz);
+    }
+
+    .question-number {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-quiz);
+      margin-bottom: 8px;
+    }
+
+    .question-text {
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 12px;
+    }
+
+    .answer-section {
+      background: var(--bg-secondary);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+    }
+
+    .answer-label {
+      font-weight: 600;
+      color: var(--success);
+      margin-bottom: 6px;
+    }
+
+    .hints-section {
+      margin-top: 12px;
+    }
+
+    .hint-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      margin-bottom: 6px;
+      font-size: 13px;
+    }
+
+    .hint-checkbox {
+      width: 18px;
+      height: 18px;
+      flex-shrink: 0;
+    }
+
+    .timer-display {
+      font-size: 36px;
+      font-weight: bold;
+      text-align: center;
+      margin: 15px 0;
+      color: var(--accent-quiz);
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (min-width: 768px) {
+      .timer-display {
+        font-size: 48px;
+      }
+    }
+
+    .timer-display.warning {
+      color: var(--warning);
+      animation: pulse 1s infinite;
+    }
+
+    .timer-display.danger {
+      color: var(--error);
+      animation: pulse 0.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--accent-quiz);
+      transition: width 0.1s linear;
+    }
+
+    .progress-fill.warning {
+      background: var(--warning);
+    }
+
+    .progress-fill.danger {
+      background: var(--error);
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .points-preview {
+      background: var(--bg-secondary);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .points-preview div {
+      margin: 4px 0;
+    }
+
+    .status-message {
+      padding: 12px;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 14px;
+    }
+
+    .status-message.show {
+      display: block;
+    }
+
+    .status-message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border-left: 4px solid var(--success);
+    }
+
+    .status-message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border-left: 4px solid var(--error);
+    }
+
+    .status-message.info {
+      background: #dbeafe;
+      color: #1e40af;
+      border-left: 4px solid var(--accent-quiz);
+    }
+
+    .team-members-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 13px;
+    }
+
+    .team-members-table th,
+    .team-members-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .team-members-table th {
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .team-members-table input[type="text"] {
+      width: 100%;
+      padding: 6px;
+      font-size: 13px;
+    }
+
+    .team-members-table input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .loading-overlay.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid var(--bg-tertiary);
+      border-top-color: var(--accent-quiz);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .quick-actions {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .debug-info {
+      background: var(--bg-tertiary);
+      padding: 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      margin-top: 10px;
+      font-family: monospace;
+    }
+
+    .score-display {
+      background: var(--bg-secondary);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .score-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding: 10px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+    }
+
+    .team-info {
+      flex: 1;
+    }
+
+    .team-name {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+
+    .team-score {
+      font-size: 24px;
+      font-weight: bold;
+      color: var(--success);
+    }
+
+    @media (min-width: 768px) {
+      .team-score {
+        font-size: 28px;
+      }
+    }
+
+    .team-members-list {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .member-name {
+      display: inline-block;
+      margin-right: 6px;
+      margin-bottom: 4px;
+      padding: 2px 6px;
+      background: var(--bg-secondary);
+      border-radius: 3px;
+    }
+
+    .already-answered-warning {
+      background: #fff3cd;
+      border-left: 4px solid var(--warning);
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 12px;
+      color: #856404;
+      font-size: 13px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>📖 Control Dashboard</h1>
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="btnToggleTheme">🌙 Dark Mode</button>
+        <button class="btn btn-danger" id="btnLogout">Logout</button>
+      </div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="grid">
+      <!-- Left Column: Controls -->
+      <div>
+        <!-- Quick Actions - MOVED TO TOP -->
+        <div class="card">
+          <h2>Quick Actions</h2>
+          <div class="quick-actions">
+            <button class="btn btn-warning" id="btnSkip">⏭ Skip Question</button>
+            <button class="btn btn-danger" id="btnEndGame">🏁 End Game</button>
+            <button class="btn btn-primary" id="btnResetGame">🔄 Reset Game</button>
+          </div>
+        </div>
+
+        <!-- Game Type Selection -->
+        <div class="card">
+          <h2>Question Type</h2>
+          <div class="form-group">
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="question_type" value="quiz" checked>
+                Bible Quiz
+              </label>
+              <label>
+                <input type="radio" name="question_type" value="recitation">
+                Recitation
+              </label>
+              <label>
+                <input type="radio" name="question_type" value="character">
+                Character
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btnSetGameType">Set Question Type</button>
+        </div>
+
+        <!-- Team Selection -->
+        <div class="card">
+          <h2>Active Team</h2>
+          <div class="form-group">
+            <div class="radio-group">
+              <label>
+                <input type="radio" name="active_team" value="A" checked>
+                Team A
+              </label>
+              <label>
+                <input type="radio" name="active_team" value="B">
+                Team B
+              </label>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btnSetTeam">Set Active Team</button>
+        </div>
+
+        <!-- Question Loading -->
+        <div class="card">
+          <h2>Load Question</h2>
+          <div class="form-group">
+            <label>Question Number</label>
+            <input type="number" id="inputQuestionNumber" min="1" placeholder="Enter question number">
+          </div>
+          <button class="btn btn-primary" id="btnLoadQuestion">Load Question</button>
+          <div id="questionStatus" style="margin-top: 10px; font-size: 12px; color: var(--text-secondary);"></div>
+          
+          <!-- Debug Info -->
+          <div class="debug-info" id="debugInfo" style="display: none;">
+            Current State:<br>
+            Type: <span id="debugType">-</span><br>
+            Number: <span id="debugNumber">-</span><br>
+            Team: <span id="debugTeam">-</span>
+          </div>
+        </div>
+
+        <!-- Timer - MOVED HERE (Above current question) -->
+        <div class="card">
+          <h2>Timer</h2>
+          <div class="timer-display" id="timerDisplay">01:00</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="timerProgress" style="width: 100%;"></div>
+          </div>
+          <div class="action-buttons">
+            <button class="btn btn-success" id="btnStartTimer">Start Timer (60s)</button>
+            <button class="btn btn-warning" id="btnStartBonus">Bonus Timer (30s)</button>
+            <button class="btn btn-secondary" id="btnResetTimer">Reset</button>
+          </div>
+        </div>
+
+        <!-- Current Question (Control View) -->
+        <div class="card" id="questionCard" style="display: none;">
+          <h2>Current Question (Control View)</h2>
+          
+          <div id="alreadyAnsweredWarning" class="already-answered-warning" style="display: none;">
+            ⚠️ This question has already been answered in this session!
+          </div>
+
+          <div class="question-display">
+            <div class="question-number" id="ctrlQuestionNumber"></div>
+            <div class="question-text" id="ctrlQuestionText"></div>
+            
+            <div class="answer-section">
+              <div class="answer-label">ANSWER:</div>
+              <div id="ctrlAnswer"></div>
+            </div>
+
+            <div class="hints-section">
+              <div style="font-weight: 600; margin-bottom: 8px;">HINTS:</div>
+              <div id="ctrlHints"></div>
+            </div>
+          </div>
+
+          <!-- Hint Management -->
+          <div style="margin-top: 15px;">
+            <h3>Hint Management</h3>
+            <div class="action-buttons">
+              <button class="btn btn-warning" id="btnRequestHint">Mark Hint as Requested</button>
+              <button class="btn btn-success" id="btnRevealHint">Reveal Next Hint</button>
+            </div>
+            <div style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+              <div>Hints Requested: <span id="hintsRequested">0</span></div>
+              <div>Hints Revealed: <span id="hintsRevealed">0</span></div>
+            </div>
+          </div>
+
+          <!-- Points Calculation -->
+          <div class="points-preview" id="pointsPreview" style="margin-top: 15px;"></div>
+
+          <!-- Answer Submission -->
+          <div style="margin-top: 15px;">
+            <h3>Submit Answer</h3>
+            
+            <!-- Enable Bonus - ABOVE BUTTONS -->
+            <div class="form-group" style="margin-bottom: 12px;">
+              <label>
+                <input type="checkbox" id="checkBonus"> Enable Bonus Round for Opposing Team
+              </label>
+            </div>
+
+            <div class="action-buttons">
+              <button class="btn btn-success" id="btnCorrect">✓ Correct</button>
+              <button class="btn btn-danger" id="btnWrong">✗ Wrong</button>
+            </div>
+          </div>
+
+          <!-- Next and Undo buttons - BELOW CORRECT/WRONG -->
+          <div class="action-buttons" style="margin-top: 12px;">
+            <button class="btn btn-success" id="btnNext">➡️ Next</button>
+            <button class="btn btn-secondary" id="btnUndo">↶ Undo</button>
+          </div>
+        </div>
+
+        <!-- Scores Display -->
+        <div class="card">
+          <h2>Current Scores</h2>
+          <div class="score-display" id="scoreDisplay"></div>
+        </div>
+
+        <!-- Team Members Management -->
+        <div class="card">
+          <h2>Team Members</h2>
+          <div style="margin-bottom: 15px;">
+            <h3>Team A</h3>
+            <table class="team-members-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Visible</th>
+                </tr>
+              </thead>
+              <tbody id="teamAMembers"></tbody>
+            </table>
+          </div>
+          <div>
+            <h3>Team B</h3>
+            <table class="team-members-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Visible</th>
+                </tr>
+              </thead>
+              <tbody id="teamBMembers"></tbody>
+            </table>
+          </div>
+          <button class="btn btn-primary" id="btnSaveMembers" style="margin-top: 12px;">Save Members</button>
+        </div>
+      </div>
+
+      <!-- Right Column: Preview Only -->
+      <div>
+        <!-- Preview Window -->
+        <div class="card">
+          <h2>Live Preview (Viewer Dashboard)</h2>
+          <div class="preview-container">
+            <div class="preview-label">What Viewers See</div>
+            <div id="previewContent">
+              <div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">
+                Load a question to see preview
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ========================================================================
+    // STATE MANAGEMENT
+    // ========================================================================
+    let gameState = null;
+    let currentQuestion = null;
+    let timerInterval = null;
+    let timerEndTime = null;
+    let autoSaveInterval = null;
+    let isQuestionAlreadyAnswered = false;
+    let teamMembers = [];
+
+    // ========================================================================
+    // INITIALIZATION
+    // ========================================================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      await verifySession();
+      await loadGameState();
+      initializeEventListeners();
+      startAutoSave();
+      
+      // Show debug info
+      document.getElementById('debugInfo').style.display = 'block';
+    });
+
+    async function verifySession() {
+      try {
+        const response = await fetch('/api/auth/verify', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (!data.valid || data.role !== 'controller') {
+          window.location.href = '/index.html';
+        }
+      } catch (error) {
+        console.error('Session verification failed:', error);
+        window.location.href = '/index.html';
+      }
+    }
+
+    // ========================================================================
+    // EVENT LISTENERS
+    // ========================================================================
+    function initializeEventListeners() {
+      document.getElementById('btnSetGameType').addEventListener('click', setGameType);
+      document.getElementById('btnSetTeam').addEventListener('click', setTeam);
+      document.getElementById('btnLoadQuestion').addEventListener('click', loadQuestion);
+      document.getElementById('btnStartTimer').addEventListener('click', () => startTimer(false));
+      document.getElementById('btnStartBonus').addEventListener('click', () => startTimer(true));
+      document.getElementById('btnResetTimer').addEventListener('click', resetTimer);
+      document.getElementById('btnRequestHint').addEventListener('click', requestHint);
+      document.getElementById('btnRevealHint').addEventListener('click', revealHint);
+      document.getElementById('btnCorrect').addEventListener('click', () => submitAnswer(true));
+      document.getElementById('btnWrong').addEventListener('click', () => submitAnswer(false));
+      document.getElementById('btnNext').addEventListener('click', nextRound);
+      document.getElementById('btnSkip').addEventListener('click', skipQuestion);
+      document.getElementById('btnUndo').addEventListener('click', undoAction);
+      document.getElementById('btnEndGame').addEventListener('click', endGame);
+      document.getElementById('btnSaveMembers').addEventListener('click', saveMembers);
+      document.getElementById('btnToggleTheme').addEventListener('click', toggleTheme);
+      document.getElementById('btnLogout').addEventListener('click', logout);
+      document.getElementById('btnResetGame').addEventListener('click', resetGame);
+
+      // Enter key on question number input
+      document.getElementById('inputQuestionNumber').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') loadQuestion();
+      });
+    }
+
+    // ========================================================================
+    // API CALLS
+    // ========================================================================
+    async function loadGameState() {
+      showLoading(true);
+      try {
+        const response = await fetch('/api/control/state', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          gameState = data.state;
+          currentQuestion = data.current_question;
+          teamMembers = data.team_members || [];
+          
+          // Update debug info
+          document.getElementById('debugType').textContent = gameState.current_question_type || 'NULL';
+          document.getElementById('debugNumber').textContent = gameState.current_question_number || 'NULL';
+          document.getElementById('debugTeam').textContent = gameState.active_team || 'NULL';
+          
+          console.log('Game state loaded:', {
+            type: gameState.current_question_type,
+            number: gameState.current_question_number,
+            team: gameState.active_team,
+            hasQuestion: !!currentQuestion
+          });
+          
+          renderGameState();
+          renderTeamMembers(teamMembers);
+          renderScoresWithMembers();
+        }
+      } catch (error) {
+        showError('Failed to load game state');
+        console.error(error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function setGameType() {
+      const questionType = document.querySelector('input[name="question_type"]:checked').value;
+      try {
+        const response = await fetch('/api/control/game-type/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ question_type: questionType })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess('Question type updated');
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to update question type');
+      }
+    }
+
+    async function setTeam() {
+      const team = document.querySelector('input[name="active_team"]:checked').value;
+      try {
+        const response = await fetch('/api/control/team/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ team })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess(`Active team set to Team ${team}`);
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to update team');
+      }
+    }
+
+    async function nextRound() {
+      showLoading(true);
+      try {
+        const currentTeam = gameState?.active_team || 'A';
+        const nextTeam = currentTeam === 'A' ? 'B' : 'A';
+        
+        console.log('Next Round: Switching from Team', currentTeam, 'to Team', nextTeam);
+        
+        document.querySelector(`input[name="active_team"][value="${nextTeam}"]`).checked = true;
+        
+        const teamResponse = await fetch('/api/control/team/select', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ team: nextTeam })
+        });
+        
+        if (!teamResponse.ok) {
+          throw new Error('Failed to set team');
+        }
+        
+        const clearResponse = await fetch('/api/control/question/clear', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        await fetch('/api/control/timer/reset', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        
+        stopTimer();
+        document.getElementById('timerDisplay').textContent = '01:00';
+        document.getElementById('timerProgress').style.width = '100%';
+        
+        document.getElementById('inputQuestionNumber').value = '';
+        document.getElementById('checkBonus').checked = false;
+        document.getElementById('questionCard').style.display = 'none';
+        
+        currentQuestion = null;
+        isQuestionAlreadyAnswered = false;
+        
+        document.getElementById('previewContent').innerHTML = '<div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">Load a question to see preview</div>';
+        
+        showSuccess(`✅ Ready for Team ${nextTeam}! Load next question.`);
+        
+        await loadGameState();
+        
+      } catch (error) {
+        showError('Failed to proceed to next round');
+        console.error('Next round error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function loadQuestion() {
+      const questionNumber = parseInt(document.getElementById('inputQuestionNumber').value);
+      if (!questionNumber || questionNumber < 1) {
+        showError('Please enter a valid question number');
+        return;
+      }
+
+      if (!gameState || !gameState.current_question_type) {
+        showError('Please select a question type first');
+        return;
+      }
+
+      if (!gameState.active_team) {
+        showError('Please select an active team first');
+        return;
+      }
+
+      showLoading(true);
+      try {
+        console.log('Loading question:', {
+          type: gameState.current_question_type,
+          number: questionNumber,
+          team: gameState.active_team
+        });
+
+        const response = await fetch('/api/control/question/load', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ question_number: questionNumber })
+        });
+        
+        const data = await response.json();
+        console.log('Load question response:', data);
+        
+        if (data.success) {
+          currentQuestion = data.question;
+          isQuestionAlreadyAnswered = data.already_answered || false;
+          
+          if (data.already_answered) {
+            showInfo('⚠️ This question has already been answered in this session');
+            document.getElementById('alreadyAnsweredWarning').style.display = 'block';
+          } else {
+            showSuccess('Question loaded successfully');
+            document.getElementById('alreadyAnsweredWarning').style.display = 'none';
+          }
+          
+          await loadGameState();
+          renderQuestion();
+          
+          setTimeout(() => {
+            console.log('Question should now be visible on viewer dashboard');
+          }, 500);
+          
+        } else {
+          showError(data.error || 'Question not found');
+          console.error('Load question failed:', data);
+        }
+      } catch (error) {
+        showError('Failed to load question');
+        console.error('Load question error:', error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function requestHint() {
+      if (!currentQuestion) {
+        showError('No question loaded');
+        return;
+      }
+
+      const availableHints = [currentQuestion.hint_1, currentQuestion.hint_2, currentQuestion.hint_3, currentQuestion.hint_4].filter(h => h).length;
+      const requested = gameState.hints_requested || 0;
+
+      if (requested >= availableHints) {
+        showError('No more hints available');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/control/hint/request', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess('Hint marked as requested');
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to request hint');
+      }
+    }
+
+    async function revealHint() {
+      if (!currentQuestion) {
+        showError('No question loaded');
+        return;
+      }
+
+      const hintsShown = gameState.hints_shown || 0;
+      const nextHint = hintsShown + 1;
+      
+      const availableHints = [currentQuestion.hint_1, currentQuestion.hint_2, currentQuestion.hint_3, currentQuestion.hint_4].filter(h => h).length;
+      
+      if (nextHint > availableHints) {
+        showError('All hints already revealed');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/control/hint/reveal', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ hint_number: nextHint })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess(`Hint ${nextHint} revealed`);
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to reveal hint');
+      }
+    }
+
+    async function submitAnswer(isCorrect) {
+      if (!currentQuestion) {
+        showError('No question loaded');
+        return;
+      }
+
+      if (isQuestionAlreadyAnswered) {
+        showError('This question has already been answered in this session!');
+        return;
+      }
+
+      const isBonus = document.getElementById('checkBonus').checked;
+      
+      try {
+        const response = await fetch('/api/control/answer/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ is_correct: isCorrect, is_bonus: isBonus })
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess(`Answer submitted: ${isCorrect ? 'Correct' : 'Wrong'} (+${data.points_awarded} pts)`);
+          stopTimer();
+          isQuestionAlreadyAnswered = true;
+          document.getElementById('alreadyAnsweredWarning').style.display = 'block';
+          await loadGameState();
+        } else {
+          showError(data.error || 'Failed to submit answer');
+        }
+      } catch (error) {
+        showError('Failed to submit answer');
+      }
+    }
+
+    async function skipQuestion() {
+      if (!confirm('Skip this question? Opposing team will receive bonus points.')) return;
+      
+      try {
+        const response = await fetch('/api/control/question/skip', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess(`Question skipped (+${data.points_awarded} pts to opposing team)`);
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to skip question');
+      }
+    }
+
+    async function undoAction() {
+      if (!confirm('Undo last action? This will revert score changes.')) return;
+      
+      try {
+        const response = await fetch('/api/control/action/undo', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess('Action undone - scores reverted');
+          isQuestionAlreadyAnswered = false;
+          document.getElementById('alreadyAnsweredWarning').style.display = 'none';
+          await loadGameState();
+        } else {
+          showError(data.error || 'No action to undo');
+        }
+      } catch (error) {
+        showError('Failed to undo');
+      }
+    }
+
+    async function endGame() {
+      if (!confirm('End the game and show final scores?')) return;
+      
+      try {
+        const response = await fetch('/api/control/game/end', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess('Game ended! Final scores displayed on viewer dashboard.');
+          await loadGameState();
+        }
+      } catch (error) {
+        showError('Failed to end game');
+      }
+    }
+
+    async function resetGame() {
+      if (!confirm('Reset the entire game? This will:\n\n• Clear all scores\n• Clear current question\n• Reset timer\n• Clear all answer logs\n• Clear session answers\n• Keep team members\n\nThis action cannot be undone!')) return;
+      
+      showLoading(true);
+      try {
+        const response = await fetch('/api/control/game/reset', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          showSuccess('Game reset successfully! Ready to start fresh.');
+          currentQuestion = null;
+          isQuestionAlreadyAnswered = false;
+          stopTimer();
+          document.getElementById('questionCard').style.display = 'none';
+          document.getElementById('inputQuestionNumber').value = '';
+          document.getElementById('alreadyAnsweredWarning').style.display = 'none';
+          document.getElementById('previewContent').innerHTML = '<div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">Load a question to see preview</div>';
+          await loadGameState();
+        } else {
+          showError(data.error || 'Failed to reset game');
+        }
+      } catch (error) {
+        showError('Failed to reset game');
+        console.error(error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    async function saveMembers() {
+      const teamAMembers = [];
+      const teamBMembers = [];
+
+      document.querySelectorAll('#teamAMembers tr').forEach((row, idx) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const visibleInput = row.querySelector('input[type="checkbox"]');
+        teamAMembers.push({
+          number: idx + 1,
+          name: nameInput.value,
+          visible: visibleInput.checked
+        });
+      });
+
+      document.querySelectorAll('#teamBMembers tr').forEach((row, idx) => {
+        const nameInput = row.querySelector('input[type="text"]');
+        const visibleInput = row.querySelector('input[type="checkbox"]');
+        teamBMembers.push({
+          number: idx + 1,
+          name: nameInput.value,
+          visible: visibleInput.checked
+        });
+      });
+
+      try {
+        await fetch('/api/control/members/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ team: 'A', members: teamAMembers })
+        });
+
+        await fetch('/api/control/members/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ team: 'B', members: teamBMembers })
+        });
+
+        showSuccess('Team members saved');
+        await loadGameState();
+      } catch (error) {
+        showError('Failed to save members');
+      }
+    }
+
+    async function toggleTheme() {
+      try {
+        const response = await fetch('/api/control/theme/toggle', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.documentElement.setAttribute('data-theme', data.dark_mode ? 'dark' : 'light');
+          document.getElementById('btnToggleTheme').textContent = data.dark_mode ? '☀️ Light Mode' : '🌙 Dark Mode';
+        }
+      } catch (error) {
+        showError('Failed to toggle theme');
+      }
+    }
+
+    async function logout() {
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        window.location.href = '/index.html';
+      } catch (error) {
+        window.location.href = '/index.html';
+      }
+    }
+
+    // ========================================================================
+    // TIMER FUNCTIONS
+    // ========================================================================
+    async function startTimer(isBonus) {
+      const duration = isBonus ? 30 : 60;
+      
+      try {
+        const response = await fetch('/api/control/timer/start', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ is_bonus: isBonus })
+        });
+        
+        if (response.ok) {
+          timerEndTime = Date.now() + (duration * 1000);
+          if (timerInterval) clearInterval(timerInterval);
+          timerInterval = setInterval(updateTimer, 100);
+        }
+      } catch (error) {
+        showError('Failed to start timer');
+      }
+    }
+
+    function updateTimer() {
+      if (!timerEndTime) return;
+
+      const remaining = Math.max(0, timerEndTime - Date.now());
+      const seconds = Math.ceil(remaining / 1000);
+      const minutes = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+
+      const display = document.getElementById('timerDisplay');
+      const progress = document.getElementById('timerProgress');
+      
+      display.textContent = `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      
+      const totalDuration = gameState?.timer_duration || 60;
+      const percentage = (remaining / (totalDuration * 1000)) * 100;
+      progress.style.width = `${percentage}%`;
+
+      display.classList.remove('warning', 'danger');
+      progress.classList.remove('warning', 'danger');
+      
+      if (seconds <= 5) {
+        display.classList.add('danger');
+        progress.classList.add('danger');
+      } else if (seconds <= 10) {
+        display.classList.add('warning');
+        progress.classList.add('warning');
+      }
+
+      if (remaining === 0) {
+        stopTimer();
+        showWarning('⏰ Time expired!');
+      }
+    }
+
+    async function resetTimer() {
+      stopTimer();
+      try {
+        await fetch('/api/control/timer/reset', {
+          method: 'POST',
+          credentials: 'include'
+        });
+        document.getElementById('timerDisplay').textContent = '01:00';
+        document.getElementById('timerProgress').style.width = '100%';
+      } catch (error) {
+        showError('Failed to reset timer');
+      }
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+      timerEndTime = null;
+    }
+
+    // ========================================================================
+    // RENDERING FUNCTIONS
+    // ========================================================================
+    function renderGameState() {
+      if (!gameState) return;
+
+      document.documentElement.setAttribute('data-theme', gameState.dark_mode ? 'dark' : 'light');
+      document.getElementById('btnToggleTheme').textContent = gameState.dark_mode ? '☀️ Light Mode' : '🌙 Dark Mode';
+
+      if (gameState.current_question_type) {
+        const typeRadio = document.querySelector(`input[name="question_type"][value="${gameState.current_question_type}"]`);
+        if (typeRadio) typeRadio.checked = true;
+      }
+      if (gameState.active_team) {
+        const teamRadio = document.querySelector(`input[name="active_team"][value="${gameState.active_team}"]`);
+        if (teamRadio) teamRadio.checked = true;
+      }
+
+      document.getElementById('hintsRequested').textContent = gameState.hints_requested || 0;
+      document.getElementById('hintsRevealed').textContent = gameState.hints_shown || 0;
+
+      if (currentQuestion) {
+        renderQuestion();
+      } else {
+        document.getElementById('questionCard').style.display = 'none';
+      }
+
+      updateHintButtons();
+    }
+
+    function updateHintButtons() {
+      const requestBtn = document.getElementById('btnRequestHint');
+      const revealBtn = document.getElementById('btnRevealHint');
+
+      if (!currentQuestion) {
+        requestBtn.disabled = true;
+        revealBtn.disabled = true;
+        return;
+      }
+
+      const availableHints = [currentQuestion.hint_1, currentQuestion.hint_2, currentQuestion.hint_3, currentQuestion.hint_4].filter(h => h).length;
+      const requested = gameState.hints_requested || 0;
+      const shown = gameState.hints_shown || 0;
+
+      requestBtn.disabled = (requested >= availableHints);
+      revealBtn.disabled = (shown >= availableHints);
+    }
+
+    function renderQuestion() {
+      if (!currentQuestion) return;
+
+      document.getElementById('questionCard').style.display = 'block';
+      
+      document.getElementById('ctrlQuestionNumber').textContent = `QUESTION ${currentQuestion.question_number} (${currentQuestion.question_type.toUpperCase()})`;
+      document.getElementById('ctrlQuestionText').textContent = currentQuestion.question_text;
+      document.getElementById('ctrlAnswer').textContent = currentQuestion.answer;
+
+      const hintsHtml = ['hint_1', 'hint_2', 'hint_3', 'hint_4']
+        .map((hint, idx) => {
+          const hintText = currentQuestion[hint];
+          if (!hintText) return '';
+          const revealed = (gameState.hints_shown || 0) > idx;
+          return `
+            <div class="hint-item">
+              <input type="checkbox" class="hint-checkbox" ${revealed ? 'checked' : ''} disabled>
+              <span>${idx + 1}. ${hintText}</span>
+            </div>
+          `;
+        })
+        .join('');
+      
+      document.getElementById('ctrlHints').innerHTML = hintsHtml || '<em>No hints available</em>';
+
+      renderPreview();
+      calculatePointsPreview();
+      updateHintButtons();
+    }
+
+    function renderPreview() {
+      const previewContent = document.getElementById('previewContent');
+      
+      if (!currentQuestion) {
+        previewContent.innerHTML = '<div style="text-align: center; padding: 80px 20px; color: var(--text-secondary);">Load a question to see preview</div>';
+        return;
+      }
+
+      let hintsHtml = '';
+      const hintsShown = gameState.hints_shown || 0;
+      const hintsRequested = gameState.hints_requested || 0;
+
+      for (let i = 1; i <= 4; i++) {
+        const hintText = currentQuestion[`hint_${i}`];
+        if (!hintText) continue;
+
+        if (i <= hintsShown) {
+          hintsHtml += `<div style="margin: 8px 0; padding: 8px; background: var(--bg-secondary); border-radius: 4px; font-size: 14px;">${i}. ${hintText}</div>`;
+        } else if (i <= hintsRequested) {
+          hintsHtml += `<div style="margin: 8px 0; padding: 8px; background: var(--bg-secondary); border-radius: 4px; font-style: italic; color: var(--warning); font-size: 14px;">${i}. Hint Requested...</div>`;
+        }
+      }
+
+      const answerHtml = gameState.answer_visible ? 
+        `<div style="margin-top: 15px; padding: 12px; background: var(--bg-secondary); border-radius: 6px; border-left: 4px solid var(--success);">
+          <div style="font-weight: 600; color: var(--success); margin-bottom: 5px; font-size: 13px;">ANSWER:</div>
+          <div style="font-size: 14px;">${currentQuestion.answer}</div>
+        </div>` : '';
+
+      previewContent.innerHTML = `
+        <div style="padding: 15px;">
+          <div style="text-align: center; font-size: 16px; font-weight: 600; color: var(--accent-quiz); margin-bottom: 15px;">
+            QUESTION ${currentQuestion.question_number}
+          </div>
+          <div style="font-size: 16px; line-height: 1.6; margin-bottom: 15px;">
+            ${currentQuestion.question_text}
+          </div>
+          ${hintsHtml ? `<div style="margin-top: 15px;"><div style="font-weight: 600; margin-bottom: 8px; font-size: 14px;">HINTS:</div>${hintsHtml}</div>` : ''}
+          ${answerHtml}
+        </div>
+      `;
+    }
+
+    function calculatePointsPreview() {
+      if (!currentQuestion) return;
+
+      const basePoints = currentQuestion.points || 5;
+      const hintsUsed = gameState.hints_shown || 0;
+      const deduction = hintsUsed * (currentQuestion.bonus_hint_points || 1);
+      const finalPoints = Math.max(0, basePoints - deduction);
+
+      document.getElementById('pointsPreview').innerHTML = `
+        <div><strong>Points Calculation:</strong></div>
+        <div>Base Points: ${basePoints}</div>
+        <div>Hints Used: ${hintsUsed} × ${currentQuestion.bonus_hint_points || 1} = -${deduction}</div>
+        <div style="margin-top: 8px; font-weight: 600; color: var(--success);">Final Points: ${finalPoints}</div>
+      `;
+    }
+
+    function renderTeamMembers(members) {
+      const teamABody = document.getElementById('teamAMembers');
+      const teamBBody = document.getElementById('teamBMembers');
+
+      teamABody.innerHTML = '';
+      teamBBody.innerHTML = '';
+
+      const teamAMembers = members.filter(m => m.team === 'A').sort((a, b) => a.member_number - b.member_number);
+      const teamBMembers = members.filter(m => m.team === 'B').sort((a, b) => a.member_number - b.member_number);
+
+      for (let i = 1; i <= 12; i++) {
+        const memberA = teamAMembers.find(m => m.member_number === i) || { member_number: i, member_name: '', is_visible: 1 };
+        const memberB = teamBMembers.find(m => m.member_number === i) || { member_number: i, member_name: '', is_visible: 1 };
+
+        teamABody.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td><input type="text" value="${memberA.member_name || ''}" placeholder="Member ${i}"></td>
+            <td><input type="checkbox" ${memberA.is_visible ? 'checked' : ''}></td>
+          </tr>
+        `;
+
+        teamBBody.innerHTML += `
+          <tr>
+            <td>${i}</td>
+            <td><input type="text" value="${memberB.member_name || ''}" placeholder="Member ${i}"></td>
+            <td><input type="checkbox" ${memberB.is_visible ? 'checked' : ''}></td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderScoresWithMembers() {
+      if (!gameState) return;
+
+      const currentType = gameState.current_question_type;
+      if (!currentType) {
+        document.getElementById('scoreDisplay').innerHTML = '<div style="text-align: center; padding: 30px; color: var(--text-secondary); font-size: 13px;">Select a question type to view scores</div>';
+        return;
+      }
+
+      const typeLabels = {
+        quiz: 'Bible Quiz',
+        recitation: 'Recitation',
+        character: 'Character'
+      };
+
+      const scoreFieldA = `team_a_${currentType}_score`;
+      const scoreFieldB = `team_b_${currentType}_score`;
+      const scoreA = gameState[scoreFieldA] || 0;
+      const scoreB = gameState[scoreFieldB] || 0;
+
+      const teamAMembers = teamMembers.filter(m => m.team === 'A' && m.member_name && m.member_name.trim() !== '' && m.is_visible);
+      const teamBMembers = teamMembers.filter(m => m.team === 'B' && m.member_name && m.member_name.trim() !== '' && m.is_visible);
+
+      const teamAMembersHtml = teamAMembers.length > 0 ? 
+        `<div class="team-members-list">${teamAMembers.map(m => `<span class="member-name">${m.member_name}</span>`).join('')}</div>` : '';
+
+      const teamBMembersHtml = teamBMembers.length > 0 ? 
+        `<div class="team-members-list">${teamBMembers.map(m => `<span class="member-name">${m.member_name}</span>`).join('')}</div>` : '';
+
+      document.getElementById('scoreDisplay').innerHTML = `
+        <div style="text-align: center; margin-bottom: 12px; font-size: 14px; font-weight: 600; color: var(--text-secondary);">
+          ${typeLabels[currentType]} Scores
+        </div>
+        <div class="score-row">
+          <div class="team-info">
+            <div class="team-name">TEAM A</div>
+            <div class="team-score">${scoreA} pts</div>
+            ${teamAMembersHtml}
+          </div>
+        </div>
+        <div class="score-row">
+          <div class="team-info">
+            <div class="team-name">TEAM B</div>
+            <div class="team-score">${scoreB} pts</div>
+            ${teamBMembersHtml}
+          </div>
+        </div>
+      `;
+    }
+
+    // ========================================================================
+    // UI HELPERS
+    // ========================================================================
+    function showLoading(show) {
+      document.getElementById('loadingOverlay').classList.toggle('show', show);
+    }
+
+    function showMessage(message, type) {
+      const statusEl = document.getElementById('statusMessage');
+      statusEl.textContent = message;
+      statusEl.className = `status-message ${type} show`;
+      setTimeout(() => statusEl.classList.remove('show'), 5000);
+    }
+
+    function showSuccess(message) {
+      showMessage(message, 'success');
+    }
+
+    function showError(message) {
+      showMessage(message, 'error');
+    }
+
+    function showInfo(message) {
+      showMessage(message, 'info');
+    }
+
+    function showWarning(message) {
+      showMessage(message, 'error');
+    }
+
+    // ========================================================================
+    // AUTO-SAVE
+    // ========================================================================
+    function startAutoSave() {
+      autoSaveInterval = setInterval(async () => {
+        try {
+          await fetch('/api/control/state/save', {
+            method: 'POST',
+            credentials: 'include'
+          });
+        } catch (error) {
+          console.error('Auto-save failed:', error);
+        }
+      }, 5000);
+    }
+
+    window.addEventListener('beforeunload', () => {
+      if (timerInterval) clearInterval(timerInterval);
+      if (autoSaveInterval) clearInterval(autoSaveInterval);
+    });
+  </script>
+</body>
+</html>
