@@ -1,3 +1,5 @@
+available at https://github.com/azelife/Bible-Quiz-Game
+
 # 📖 Bible Quiz Dashboard System
 
 A real-time Bible quiz management system built with Cloudflare Workers, D1 database, and vanilla JavaScript. Features isolated game instances, three question types (Bible Quiz, Recitation, Character), real-time updates, and comprehensive game controls.
@@ -325,3 +327,4 @@ For issues, check:
 
 
 google-site-verification: google70afeed1c0476b8b.html
+
