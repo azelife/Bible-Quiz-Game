@@ -1,4 +1,7 @@
-available at https://github.com/azelife/Bible-Quiz-Game
+[Available here on GitHub](https://github.com/azelife/Bible-Quiz-Game)
+<a href="https://github.com/azelife/Bible-Quiz-Game">Available here on GitHub</a>
+
+
 
 # 📖 Bible Quiz Dashboard System
 
@@ -327,4 +330,5 @@ For issues, check:
 
 
 google-site-verification: google70afeed1c0476b8b.html
+
 
